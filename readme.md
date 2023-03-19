@@ -3,13 +3,15 @@
 # Background
 Back in ~2006 I rescued the guts of a Whitecross WX9090 data mining system. By guts I mean power supplies, armfulls of fiber optic interconnect and all the sub racks. It was for sale by a recycler who wanted it gone, and we made a deal that I could spend a few hours dismantling and take whatever I wanted. What was left would go to scrap (which was the racks and all the ancillary bits - batteries, power control boards, sensors, fans, etc).
 
-Following a post on comp.sys.transputer, the CTO of Whitecross kindly reached out and supplied two of the specially configured SPARC workstations that were used as the operators console. They also very kindly supplied much technical documentation including some schematics, test software, etc. The operator workstations were also useable and contained system diagnostics.
+The WX9020 originally ran as a parallel SQL server. What makes it interesting is it uses Transputers. ***Lots*** of Transputers. 
+
+Following a post on comp.sys.transputer, the CTO of Whitecross kindly reached out and supplied two of the specially configured SPARC workstations that were used as the operators console. They also very kindly supplied much technical documentation including some schematics, test software, etc. The operator workstations were also useable and contained system diagnostics. The SPARCstations inevitably died (well, actually the disks died).
 
 ## Chassis
-The WX9020 originally was one or more 19" cabinets. A cabinet had a UPS in the base and a huge extractor fan in the top. In between these are multiple 6U sub racks. Each sub rack has a specific purpose - system control, storage or compute.
+The WX9020 originally was one or more 19" cabinets. A cabinet had a UPS in the base and fans top & bottom. In between these are multiple 6U sub racks. Each sub rack has a specific purpose - system control, storage or compute.
 
 ## Power
-Each sub rack has a 48V power inlet and earth stud. 48V is supplied courtesy of huge Advance power supplies (~4kW). Each card in the rack has independent power supplies fed from the 48V feed. Most cards use +5V, -5.2V (for the ECL converters) and the storage sub racks also use 12V for the disks. Along with the rest of the system the power systems are extremely well built and all the power modules are carrier grade devices.
+Each sub rack has a 48V power inlet and earth stud. 48V is supplied courtesy of huge Advance power supplies. Each card in a sub rack has independent power supplies fed from the 48V feed. Most cards use +5V, -5.2V (for the ECL converters) and the storage sub racks also use 12V for the disks. Along with the rest of the system the power systems are extremely well built and all the power modules are carrier grade devices.
 
 Here's 2 of the PSUs powering my current dev setup. These also power the Cisco fan trays that I use for cooling - these aren't quite a full 19" width so are positioned diagonally under each rack to provide maximum coverage - especially to the PSU & ECL areas that get hottest!
 
@@ -20,7 +22,7 @@ The sub racks are interconnected with fiber pairs using High Speed Link (HSL) ca
 
 Each Transputer in the system is connected via ECL links onto the sub rack backplane. Since each Transputer has 4 links, and each link is a pair, and each ECL signal is a differential pair, that's 16 backplane signals per Transputer!
 
-Each card uses a huge Siemens quad width connector with 6 power pins in the middle. The HSL and processor cards have 192 backplane signals (3*2*32) whilst the SC uses all 256 signals
+Each card uses a huge Siemens quad width connector with 6 power pins in the middle. The HSL and processor cards have 192 backplane signals (3\*2\*32) whilst the SC (below) uses all 256 signals
 
 ![HSL front](images/SC_conn2.png)
 
@@ -39,7 +41,7 @@ Each HSL card has 2 identical, independent HSL units. Each unit has a pair of T2
 ![HSL rack](images/SC_rack.jpg)
 
 
-# System controller card
+# System controller sub-rack
 A system controller sub rack has 2 compute cards, 2 HSL cards and a system controller (SC) card. As you'd expect, the SC provides overall management of the rack. It interfaces to the rack power and environmental controls, the front panel console and the operators workstation (using a dedicated fiber link). A redundant system will duplicate all these cards with their own 48V supply.
 
 The SC uses a T225 to communicate with the operators workstation, a T222 for boot and system monitoring and the root T425 in the Transputer network.
@@ -77,9 +79,25 @@ The SCL4 design is here https://github.com/machineroom/SCL4
 ### Host adapter
 My host adapter ("*PIMOS*") uses a Raspberry Pi4 and C011 on a board of my design. It uses pin headers for the target link but a future re-spin will use the same RJ45 connectors as the SCL4 card. The design and code ie here https://github.com/machineroom/rpi_c011. Currently I'm using a cut down SCL4 card (I have spares since the fab order is minimum 5!) to provide the host adapter end of the RJ45 pair. It's a bit ugly...
 
+Amusingly, the Rpi *host* is many times faster than a fully populated WX9020 (300+ Transputers). For a comparison see https://github.com/machineroom/T-Mandel
+
 ![Dev](images/dev.jpg)
 
-# Processor card
+# Storage sub rack
+
+Specially mechanically configured to house 4 custom built storage modules, along with a few more processor cards and 2 HSLs. Each disk module contains two 4GB SCSI drives, each with its own (custom) controller. The disks seized a long time ago, as disks do. The controller is somewhat interesting though. Here's one of the 4 units from a storage sub rack:
+
+![Disks](images/DISK.jpg)
+
+The controller is essentially a single slice of a processor card (see bellow) with it's own T425 & 16MB ECC in addition to a data compression ASIC, some FLASH and an NCR SCSI controller. I believe that when this system was used for parallel SQL the disk nodes performed local processing as part of the larger network. 
+
+Disk controller front and back
+![Disk con front](images/DISK_con_front.jpg)
+
+![Disk con back](images/DISK_con_back.jpg)
+
+
+# Processor sub-rack
 This is what makes the WX9020 interesting!
 
 Here's the card front, showing the major components. There are 6 identical compute units, each with a 25MHz T425, an ECC controller and 16MB RAM. Each compute unit also has a pair of ECL/TTL converters for connection to the backplane. There are no direct links between the compute nodes on a card. Each compute unit is fused with a pair of fuses from the on-board PSUs.
@@ -102,7 +120,7 @@ What are the red flecks on the card edges? I'm glad you asked... as mentioned ab
 ## Power
 So how much power does all this draw? Lots! 
 
-As you can see from the thermal, things get pretty hot. The ECC controller and RAM are pretty cool, but the FPGAs, T425 and ECL/TTL all glow! A full populated processor sub-rack draws ~1.7kW.
+As you can see from the thermal, things get pretty hot. The ECC controller and RAM are pretty cool, but the FPGAs, T425 and ECL/TTL all glow! A full populated processor sub-rack draws ~1.2kW.
 
 ![PROC rack](images/PROC_therm.jpg)
 
