@@ -18,11 +18,11 @@ Here's 2 of the PSUs powering my current dev setup. These also power the Cisco f
 ![Power supplies](images/PSU.jpg)
 
 ## Interconnect
-The sub racks are interconnected with fiber pairs using High Speed Link (HSL) cards in a daisy chain fashion to form a continuous loop (the only copper connections to a sub rack are for power). The HSL cards multiplex 6 transputer links and 8 system control signals onto a 120Mbps fiber link.
+Each sub rack has a backplane that links each card using ECL differential pairs. The sub racks are interconnected with fiber pairs in a daisy chain fashion to form a continuous loop (the only copper connections to a sub rack are for power). Each sub rack has a pair of High Speed Link (HSL) cards that multiplex 6 transputer links and 8 system control signals onto a 120Mbps fiber link.
 
 Each Transputer in the system is connected via ECL links onto the sub rack backplane. Since each Transputer has 4 links, and each link is a pair, and each ECL signal is a differential pair, that's 16 backplane signals per Transputer!
 
-Each card uses a huge Siemens quad width connector with 6 power pins in the middle. The HSL and processor cards have 192 backplane signals (3\*2\*32) whilst the SC (below) uses all 256 signals
+Each card uses a huge Siemens "Siedecon" connector with 6 power pins in the middle and up-to 256 signal pins. The HSL and processor cards have 192 backplane signals (3 columns * 2 blocks * 32 per column per block) whilst the SC (below) uses all 256 signals.
 
 ![HSL front](images/SC_conn2.png)
 
@@ -49,7 +49,7 @@ The SC uses a T225 to communicate with the operators workstation, a T222 for boo
 ![SC front](images/SC_front.jpg)
 
 ## Replacement
-Sadly whilst in storage the on-board battery leaked acid everywhere and destroyed much of the system controller cards. One was useable, but due to these factors:
+Sadly whilst in storage the on-board battery leaked acid everywhere which destroyed most of the system controller cards. One was useable, but due to these factors:
 - Having a single useable SC card is obviously a weak link
 - The host (operator workstation) link was 10Mbps
 - 90% of the cards functions aren't used (temperature sensor interfaces, etc)
@@ -89,7 +89,7 @@ Specially mechanically configured to house 4 custom built storage modules, along
 
 ![Disks](images/DISK.jpg)
 
-The controller is essentially a single slice of a processor card (see bellow) with it's own T425 & 16MB ECC in addition to a data compression ASIC, some FLASH and an NCR SCSI controller. I believe that when this system was used for parallel SQL the disk nodes performed local processing as part of the larger network. 
+The controller is essentially a single slice of a processor card (see below) with it's own T425 & 16MB ECC in addition to a data compression ASIC, some FLASH and an NCR SCSI controller. I believe that when this system was used for parallel SQL the disk nodes performed local processing as part of the larger network. 
 
 Disk controller front and back
 ![Disk con front](images/DISK_con_front.jpg)
@@ -120,7 +120,7 @@ What are the red flecks on the card edges? I'm glad you asked... as mentioned ab
 ## Power
 So how much power does all this draw? Lots! 
 
-As you can see from the thermal, things get pretty hot. The ECC controller and RAM are pretty cool, but the FPGAs, T425 and ECL/TTL all glow! A full populated processor sub-rack draws ~1.2kW.
+As you can see from the thermal, things get pretty hot. The ECC controller and RAM are pretty cool, but the PALs, T425 and ECL/TTL all glow! A full populated processor sub-rack draws ~1.2kW.
 
 ![PROC rack](images/PROC_therm.jpg)
 
