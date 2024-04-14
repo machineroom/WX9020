@@ -1,7 +1,7 @@
 # Whitecross WX9020
 
 # Background
-Back in ~2006 I rescued the guts of a Whitecross WX9090 data mining system. By guts I mean power supplies, armfulls of fiber optic interconnect and all the sub racks. It was for sale by a recycler who wanted it gone, and we made a deal that I could spend a few hours dismantling and take whatever I wanted. What was left would go to scrap (which was the racks and all the ancillary bits - batteries, power control boards, sensors, fans, etc).
+Back in ~2006 I rescued the guts of a Whitecross WX9020 data mining system. By guts I mean power supplies, armfulls of fiber optic interconnect and all the sub racks. It was for sale by a recycler who wanted it gone, and we made a deal that I could spend a few hours dismantling and take whatever I wanted. What was left would go to scrap (which was the racks and all the ancillary bits - batteries, power control boards, sensors, fans, etc).
 
 The WX9020 originally ran as a parallel SQL server. What makes it interesting is it uses Transputers. ***Lots*** of Transputers. 
 
